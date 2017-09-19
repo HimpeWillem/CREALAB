@@ -22,7 +22,7 @@ function Load_Location_Data
 % or contact: willem.himpe {@} kuleuven.be
 
 %
-fprintf('collecting data');
+fprintf('collecting data (this might take a while');
 miv_config = parseXML('http://miv.opendata.belfla.be/miv/configuratie/xml');
 fprintf(' done \n');
 
@@ -83,7 +83,7 @@ fprintf(' done \n');
 
 total_config=table(unique_id,beschrijvende_id,volledige_naam,Ident_8,lve_nr,Kmp_Rsys,Rijstrook,X_EPSG_31370,Y_EPSG_31370,Lon_EPSG_4326,Lat_EPSG_4326);
 
-doc_name = ['Configuration_',datestr(clock,'ddmmyyyy_HHMMSS'),'.csv'];
+doc_name = ['Detector_Configuration_',datestr(clock,'ddmmyyyy_HHMMSS'),'.csv'];
 fprintf(['writing table to ',doc_name]);
 writetable(total_config,doc_name);
 fprintf(' done \n');
