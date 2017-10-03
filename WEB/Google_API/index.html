@@ -1,0 +1,201 @@
+<html class=" js backgroundsize borderradius textshadow opacity cssgradients csstransforms3d csstransitions fontface generatedcontent">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+		<title> Google API - WH</title>
+		<meta name="description" content="">
+		
+		<link rel="stylesheet" href="stylesheets/screen.css">
+				
+		<style>
+			#map {
+				width: 100%;
+				height: 400px;
+				background-color: grey;
+			}
+		</style>
+				
+	</head>
+	
+	<body>
+		<div class="page-container">
+  	  	<header></header>
+		<div class="page clearfix">
+    	<section class="content">
+    		<article>
+
+				<header>
+					<h1>Using Google API's for traffic analysis</h1>
+					<p class="date">28 September, 2017 </p>
+					
+				</header>
+				
+				<section class="entry">
+					<div id="OpenData">
+						<p> Google provides <a href="https://developers.google.com/maps/">API's</a> to develope applications using its mapping services. 
+						There are many different web services that can be used to extract data about the transportation system. The most important ones for traffic analysis are: 
+						</p>
+				   
+						<ul>
+							<li>Travel characteristics between different locations: (<a href="https://developers.google.com/maps/documentation/distance-matrix">distance-matrix API</a>)</li>
+
+							<li>Generate routes for a mode of transport: (<a href="https://developers.google.com/maps/documentation/directions/">directions API</a>)</li>
+							
+							<li>Snap GPS coordinates to roads and determine the speed limit: (<a href="https://developers.google.com/maps/documentation/roads/intro">roads API</a>)</li>
+							
+							<li>Get information about a location: (<a href="https://developers.google.com/places/web-service">places API</a>)</li>
+						</ul>					   
+					   
+						<p>As an example 3 different travel time estimataros are evaluated between two points using the distance-matrix API. In order to use the API a key must be optained from the <a href="https://console.developers.google.com/">developers</a> console.
+						Login with your google account, go to the <i>Crendentials</i> page and <i>create</i> a new project.</p>
+						
+						<IMG SRC="img/Google_API_console.png" ALT="some text" height='300' width='500'>
+						
+						<p>Next create a simple API key by clicking on create credentials. Each key kan be restricted to be used only by a specific IP address, app or website. The key is used to access google's API's by passing it as a parameter:</p>
+						
+						<pre><code class="undefined">key=your_API_key</code></pre>
+				   
+						<p>Next select have look at google maps and find out the coordinates of the starting point and the end point of a stretch of road. In the graph below two locations allong the E40 towards Brussels are choosen.</p>
+						
+						<div id="map"></div>
+						<script>
+							function initMap() {
+								var fromNode = {lat: 50.865052, lng: 4.586750};
+								var contentString_from = '<div id="content">'+
+									'<div id="siteNotice">'+
+									'</div>'+
+									'<h3 id="firstHeading" class="firstHeading">From Node</h3>'+
+									'<div id="bodyContent">'+
+									'<p>lattitude: 50.865052</p>'+
+									'<p>longitude: 4.586750</p>'+
+            						'</div>'+
+									'</div>';
+						        var infowindow_from = new google.maps.InfoWindow({
+									content: contentString_from
+								});
+								var toNode = {lat: 50.869441, lng: 4.477127};
+								var contentString_to = '<div id="content">'+
+									'<div id="siteNotice">'+
+									'</div>'+
+									'<h3 id="firstHeading" class="firstHeading">To Node</h3>'+
+									'<div id="bodyContent">'+
+									'<p>lattitude: 50.869441</p>'+
+									'<p>longitude: 4.477127</p>'+
+            						'</div>'+
+									'</div>';
+								var infowindow_to = new google.maps.InfoWindow({
+									content: contentString_to
+								});
+								var center = {lat: 50.869656, lng: 4.526066};
+								var map = new google.maps.Map(document.getElementById('map'), {
+									zoom: 11,
+									center: center
+								});
+								var marker_from = new google.maps.Marker({
+									position: fromNode,
+									map: map
+								});
+								marker_from.addListener('click', function() {
+									infowindow_from.open(map, marker_from);
+								});
+								var marker_to = new google.maps.Marker({
+									position: toNode,
+									map: map
+								});
+								marker_to.addListener('click', function() {
+									infowindow_to.open(map, marker_to);
+								});
+							}
+						</script>
+						<script async defer
+							src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCnEC4mwhN797Ik4xfrEFGwn4barVW2uec&callback=initMap">
+						</script>
+						
+						<p>The coordinates and key are required to setup the API. A google API is typically composed of different parameters. In case of the distancematrix service the following are required:</p>
+														
+						<ul>
+							<li>the service: <code class="undefined"> https://maps.googleapis.com/maps/api/distancematrix/xml?</code></li>
+							
+							<li>the origins: <code class="undefined"> origins=50.865052, 4.586750</code></li>
+
+							<li>the destinations: <code class="undefined"> destinations=50.869441, 4.477127</code></li>
+					
+							<li>your API key: <code class="undefined"> key=your_API_key</code></li>
+						</ul>					   
+
+						<p>Note that the format of the result is explicitly provided in the API string. In this case the result is provided by the xml protocol.</p>
+						
+						<p>The different parameters are combined into one long url. The API kan be tested by pasting the url into your browser:</p>
+												
+						<pre><code class="undefined">https://maps.googleapis.com/maps/api/distancematrix/xml?origins=50.865052,<b>%20</b>4.586750<b>&</b>destinations=50.869441,<b>%20</b>4.477127<b>&</b>key=your_API_key</code></pre>
+						
+						<p>The developers page provides extra information on different addtional parameters.</p>
+						
+						<p>Two additional parameters are required to generate an estimate of the travel time at a specific time:</p>				
+													
+						<ul>
+							<li>the departure time (not in the past): <code class="undefined"> departure_time=1506617590 [UNIX time]</code></li>
+							
+							<li>a travel time estimator: <code class="undefined"> traffic_model=best_guess [default] / optimistic / pessimistic</code></li>						
+						</ul>
+				   	
+					
+						<h3 id="MapVisualization">Mining data with Matlab</h3>
+					  
+						<p>The xml file produced by the API is loaded into Matlab to automate the task of collecting data and setting up different API's.
+						It is easy to writing the output of an url to a file is with the command <a href="https://nl.mathworks.com/help/matlab/ref/urlwrite.html">urlwrite</a> 
+						or <a href="https://nl.mathworks.com/help/matlab/ref/websave.html">websave</a>.</p>
+					
+						<pre><code class="undefined">>> urlwrite(txt_api,save_as_filename)</code></pre>
+					    <pre><code class="undefined">>> websave(save_as_filename,txt_api)</code></pre>
+					   
+						<p>Loading the data fields of the xml file into the Matlab memory is more combersome.
+						The <a href="https://nl.mathworks.com/help/matlab/ref/xmlread.html">xmlread</a> function will return a Document Object Model (DOM) node that respresents the document.
+						The node can be manipulated using standard DOM functions.</p>
+						
+						<p>The mathworks web page provides an example of how to write a parser using the DOM functions. There is example code that produces a structure array with fields: Name, Attributes, Data, Children. 
+						Copy this code to a new m-file and save it as <i>parseXML.m</i> </p>
+						
+						<p>Use this code to generate a structure array that contains all the xml data:</p>
+						
+						<pre><code class="undefined">>> my_struct = parseXML(saved_xml_filename)</code></pre>
+						
+						<p>Explore the data in the variable window</p>
+						
+						<IMG SRC="img/Google_Matlab_data.png" ALT="some text" height='500' width='800'>
+						
+						<p>The data is buried deep within the structure but it is possible to write custom m-files to facilitate the xml processing.</p>
+						
+						<p>Don't forget, the travel time at the specified departure time needs to be transformed into a numeric value:</p>
+						
+						<pre><code class="undefined">>> travel_time_value = str2num(data.Children(8).Children(2).Children(8).Children(2).Children.Data)</code></pre>
+						
+						
+						<h3 id="Reading">Additional reading and data sources</h3>
+
+						<ul>
+							<li>Using databases</li>
+							<li>Enhanced data processing</li>
+							<li>Creating an interactive dashboard with RStudio and ShinyApp</li>
+						</ul>
+						
+					</div>
+				</section>
+			</article>
+		</section>
+		</div>
+		</div>
+	</body>
+	
+	<footer class="clearfix">
+		<section class="footer-content">
+			<p>I am <a href="https://github.com/HimpeWillem">HimpeWillem on Github</a></p>
+			<p></p>
+			<p></p>
+			<p> Web desing based on this <a href="http://ccarpenterg.github.io/blog/us-census-visualization-with-d3js/">Blog</a>.</p>
+		</section>
+	</footer>
+	
+</html>

@@ -22,7 +22,7 @@ function Load_Location_Data
 % or contact: willem.himpe {@} kuleuven.be
 
 %
-fprintf('collecting data (this might take a while');
+fprintf('collecting data (this might take a while)');
 miv_config = parseXML('http://miv.opendata.belfla.be/miv/configuratie/xml');
 fprintf(' done \n');
 
@@ -46,11 +46,15 @@ for i=4:2:size(miv_config.Children,2)
     unique_id(it) = str2num(miv_config.Children(i).Attributes.Value);
     beschrijvende_id(it) = {miv_config.Children(i).Children(2).Children.Data};
     if isempty(miv_config.Children(i).Children(4).Children)
-        volledige_naam(it) = {''};
+        volledige_naam(it) = {'""'};
     else        
-        volledige_naam(it) = {miv_config.Children(i).Children(4).Children.Data};
+        txt_temp = miv_config.Children(i).Children(4).Children.Data;
+        txt_temp(regexp(txt_temp,','))='.';
+        volledige_naam(it) = {txt_temp};
     end
-    Ident_8(it) = {miv_config.Children(i).Children(6).Children.Data};
+    txt_temp = miv_config.Children(i).Children(6).Children.Data;
+    txt_temp(regexp(txt_temp,','))='';
+    Ident_8(it) = {txt_temp};
     lve_nr(it) = str2num(miv_config.Children(i).Children(8).Children.Data);
     if isempty(miv_config.Children(i).Children(10).Children)
         Kmp_Rsys(it) = 0;
