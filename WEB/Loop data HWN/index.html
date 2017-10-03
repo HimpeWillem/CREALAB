@@ -1,0 +1,215 @@
+<html class=" js backgroundsize borderradius textshadow opacity cssgradients csstransforms3d csstransitions fontface generatedcontent">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+		<title> Flanders Loop-based Opendata - WH</title>
+		<meta name="description" content="">
+		
+		<link rel="stylesheet" href="stylesheets/screen.css">
+		<link rel="stylesheet" href="css/Flanders.css">
+		<link rel="stylesheet" href="css/leaflet.css" />
+        <link rel="stylesheet" type="text/css" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/label.css" />
+        <link rel="stylesheet" href="css/MarkerCluster.css" />
+        <link rel="stylesheet" href="css/MarkerCluster.Default.css" />
+		
+		<script src="js/leaflet.js"></script>
+        <script src="js/OSMBuildings-Leaflet.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/label.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/leaflet.markercluster.js"></script>
+		<style>	
+			#map {
+				width: 900px;
+				height: 750px;
+				}
+		</style>
+		
+	</head>
+	
+	<body>
+		<div class="page-container">
+  	  	<header></header>
+		<div class="page clearfix">
+    	<section class="content">
+    		<article>
+
+				<header>
+					<h1>Flanders Loop-based Opendata</h1>
+					<p class="date">8 September, 2017 </p>
+					
+				</header>
+				
+				<section class="entry">
+				   <div id="OpenData">
+				       <p>The <a href="http://wegenenverkeer.be">Road and Traffic Agency</a> and the <a href="http://www.verkeerscentrum.be">Flemish Traffic Centre</a> provides data from inductive detection loops on highways in Flanders under an <a href="https://overheid.vlaanderen.be/sites/default/files/documenten/ict-egov/licenties/hergebruik/modellicentie_gratis_hergebruik_v1_0.html">opendata</a> license.
+					   The data is updated every minute and containes for each detector station the number of vehicles and the average speeds, divided in 5 vehicle classes, aggregated per minute and the location of the measurement points. </p>
+					   
+					   <p>The data is accessible through the webportal of Flanders:</p>
+					   
+					   <p><a href="http://opendata.vlaanderen.be">http://opendata.vlaanderen.be</a></p>
+					   
+					   <p>The data and metadata is provided in 4 different machine readable files distributed in two groups:</p>
+					   
+					   <ul>
+							<li>Traffic data containing the actual measurements (<a href="http://miv.opendata.belfla.be/miv/verkeersdata">.xml</a>) and its description (<a href="http://miv.opendata.belfla.be/miv-verkeersdata.xsd">.xsd</a>)</li>
+
+							<li>Location data with the locations of the measurements (<a href="http://miv.opendata.belfla.be/miv/configuratie/xml">.xml</a>) and the configuration (<a href="http://miv.opendata.belfla.be/miv-conf.xsd">.xsd</a>)</li>
+					   </ul>					   
+					   
+					   <p>Only the .xml are used to analyse the traffic on the Highway network. The .xsd files are used to validate the data in the .xml files and not further used here.</p>
+					   
+					   
+					   <h3 id="MapVisualization">Visualizing the detectors on a map with QGIS</h3>
+					   
+					   <p>The .xml file with the location data needs to be transformed to a text file table (.csv) before it is loaded into the mapping software using Matlab and some custom build functions.</p>
+					    								
+					   <pre><code class="undefined">>> Load_Location_Data</code></pre>
+											   
+					   <p>The QGIS software package is used to map the location data. It is a a free and open source Geographic Information System. The latest image can be downloaded from the <a href="http://www.qgis.org">webpage</a>.</p>								
+					   
+					   <p>Import the data as a new Delimited Text Layer and set the X field to <b>X_EPSG_31370</b> and Y field to <b>Y_EPSG_31370</b></p>
+					   
+					   <IMG SRC="img/QGIS_1.png" ALT="some text">
+					   
+					   <p>The coordinate reference system needs to be configured correctly to visualize the data on a map. The X and Y field are configured to the Belgian Lambert 72 projected coordinate system. Find the <b>General</b> tab of the <b>properties</b> window for the layer with the location data and select the CRS with Authority ID <b>EPSG:31370</b>.</p>
+					   
+					   <IMG SRC="img/QGIS_2.png" ALT="some text">
+					   
+					   <p>In a final step we will add a background to visually locate the detectors on a map of the region. If needed installed the OpenLayers plugin via <b>Plugins</b> -> <b>Manage and Install Plugins...</b></p>
+					   
+					   <p>Select the background  <b>web</b> -> <b>OpenLayers plugin</b> -> <b>OpenStreetMap</b> -> <b>OpenStreetMap</b>.<p> 
+					   
+					   <p>Make sure that the layers are ordered correctly in the Layers Panel. The result should look like the map below.</p>
+					   
+					   <div id="map">
+					   </div>
+					   <script src="data/json_Configuration080920171654130.js"></script>
+					   <script>
+						var highlightLayer;
+						function highlightFeature(e) {
+							highlightLayer = e.target;
+
+							if (e.target.feature.geometry.type === 'LineString') {
+							  highlightLayer.setStyle({
+								color: '#ffff00',
+							  });
+							} else {
+							  highlightLayer.setStyle({
+								fillColor: '#ffff00',
+								fillOpacity: 1
+							  });
+							}
+						}
+						L.ImageOverlay.include({
+							getBounds: function () {
+								return this._bounds;
+							}
+						});
+						var map = L.map('map', {
+							zoomControl:true, maxZoom:28, minZoom:1
+						}).fitBounds([[50.6408953054,3.59771888584],[51.4448867905,5.52842620034]]);
+						var hash = new L.Hash(map);
+						map.attributionControl.addAttribution('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a>');
+						var feature_group = new L.featureGroup([]);
+						var bounds_group = new L.featureGroup([]);
+						var raster_group = new L.LayerGroup([]);
+						var basemap0 = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+							attribution: '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors,<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
+							maxZoom: 28
+						});
+						basemap0.addTo(map);
+						var initialOrder = new Array();
+						var layerOrder = new Array();
+						function stackLayers() {
+							for (index = 0; index < initialOrder.length; index++) {
+								map.removeLayer(initialOrder[index]);
+								map.addLayer(initialOrder[index]);
+							}
+						}
+						function restackLayers() {
+							for (index = 0; index < layerOrder.length; index++) {
+								layerOrder[index].bringToFront();
+							}
+						}
+						layerControl = L.control.layers({},{},{collapsed:false});
+						function pop_Configuration080920171654130(feature, layer) {
+							layer.on({
+								mouseout: function(e) {
+									layer.setStyle(doStyleConfiguration080920171654130(feature));
+
+								},
+								mouseover: highlightFeature,
+							});
+							var popupContent = '<table><tr><th scope="row">unique_id</th><td>' + (feature.properties['unique_id'] !== null ? Autolinker.link(String(feature.properties['unique_id'])) : '') + '</td></tr><tr><th scope="row">beschrijvende_id</th><td>' + (feature.properties['beschrijvende_id'] !== null ? Autolinker.link(String(feature.properties['beschrijvende_id'])) : '') + '</td></tr><tr><th scope="row">volledige_naam</th><td>' + (feature.properties['volledige_naam'] !== null ? Autolinker.link(String(feature.properties['volledige_naam'])) : '') + '</td></tr><tr><th scope="row">Ident_8</th><td>' + (feature.properties['Ident_8'] !== null ? Autolinker.link(String(feature.properties['Ident_8'])) : '') + '</td></tr><tr><th scope="row">lve_nr</th><td>' + (feature.properties['lve_nr'] !== null ? Autolinker.link(String(feature.properties['lve_nr'])) : '') + '</td></tr><tr><th scope="row">Kmp_Rsys</th><td>' + (feature.properties['Kmp_Rsys'] !== null ? Autolinker.link(String(feature.properties['Kmp_Rsys'])) : '') + '</td></tr><tr><th scope="row">Rijstrook</th><td>' + (feature.properties['Rijstrook'] !== null ? Autolinker.link(String(feature.properties['Rijstrook'])) : '') + '</td></tr><tr><th scope="row">X_EPSG_31370</th><td>' + (feature.properties['X_EPSG_31370'] !== null ? Autolinker.link(String(feature.properties['X_EPSG_31370'])) : '') + '</td></tr><tr><th scope="row">Y_EPSG_31370</th><td>' + (feature.properties['Y_EPSG_31370'] !== null ? Autolinker.link(String(feature.properties['Y_EPSG_31370'])) : '') + '</td></tr><tr><th scope="row">Lon_EPSG_4326</th><td>' + (feature.properties['Lon_EPSG_4326'] !== null ? Autolinker.link(String(feature.properties['Lon_EPSG_4326'])) : '') + '</td></tr><tr><th scope="row">Lat_EPSG_4326</th><td>' + (feature.properties['Lat_EPSG_4326'] !== null ? Autolinker.link(String(feature.properties['Lat_EPSG_4326'])) : '') + '</td></tr><tr><th scope="row">field_12</th><td>' + (feature.properties['field_12'] !== null ? Autolinker.link(String(feature.properties['field_12'])) : '') + '</td></tr></table>';
+							layer.bindPopup(popupContent);
+						}
+
+						function doStyleConfiguration080920171654130() {
+							return {
+								radius: 5.0,
+								fillColor: '#0118e3',
+								color: '#000000',
+								weight: 0.0,
+								opacity: 1.0,
+								dashArray: '',
+								lineCap: 'butt',
+								lineJoin: 'miter',
+								fillOpacity: 1.0
+							}
+						}
+						function doPointToLayerConfiguration080920171654130(feature, latlng) {
+							return L.circleMarker(latlng, doStyleConfiguration080920171654130())
+						}
+						var json_Configuration080920171654130JSON = new L.geoJson(json_Configuration080920171654130, {
+							onEachFeature: pop_Configuration080920171654130, 
+							pointToLayer: doPointToLayerConfiguration080920171654130
+							});
+						layerOrder[layerOrder.length] = json_Configuration080920171654130JSON;
+
+						bounds_group.addLayer(json_Configuration080920171654130JSON);
+						initialOrder[initialOrder.length] = json_Configuration080920171654130JSON;
+						feature_group.addLayer(json_Configuration080920171654130JSON);
+						raster_group.addTo(map);
+						feature_group.addTo(map);
+						var baseMaps = {'OSM': basemap0};
+						L.control.layers(baseMaps,{'<img src="legend/Configuration080920171654130.png" /> Configuration_08-09-2017 16-54-13': json_Configuration080920171654130JSON,},{collapsed:false}).addTo(map);
+						stackLayers();
+						map.on('overlayadd', restackLayers);
+						</script>
+
+					<p>The final result can be embedded in a web-page like the map above. QGIS has a plugin that automatically generates a Leaflet application within a HMTL file. Select <b>web</b> -&gt; <b>qgis2web</b> -&gt; <b>Create web map</b>. By adding features like popup content or legend in the menu the proper javascripts are added to the HTML file. Note that for every layer in QGIS a json data file is created in the data folder within the designated export directory.</p>
+	
+				<h3 id="Reading">Additional reading and data sources</h3>
+
+				<ul>
+					<li>Textbook: <a href="http://forftp.byethost11.com/index.html">Mapping in the Cloud</a></li>
+					<li>Opendata portal of <a href="http://opendata.antwerpen.be/">Antwerp</a>, <a href="https://data.stad.gent/data">Ghent</a>, <a href="https://opendata.brussels.be/explore/">Brussels</a></li>
+					<li>Opendata portal of the <a href="http://data.gov.be/">federal government</a>&nbsp;of Belgium</li>
+					<li>GTFS feed of Belgian train operator:&nbsp;<a href="http://www.belgianrail.be/nl/klantendienst/infodiensten-reistools/public-data.aspx">NMBS</a></li>
+					<li>Request access to Flemish Bus data:&nbsp;<a href="https://www.delijn.be/nl/zakelijk-aanbod/reisinfodata/">De Lijn</a></li>
+					<li>Using API&#39;s and databases</li>
+					<li>Enhanced data processing</li>
+					<li>Creating an interactive dashboard with RStudio and ShinyApp</li>
+				</ul>
+			</div>
+		</section>
+	</article>
+</section>
+
+</div>
+</div>
+	
+	<footer class="clearfix">
+		<section class="footer-content">
+			<p>I am <a href="https://github.com/HimpeWillem">HimpeWillem on Github</a></p>
+			<p></p>
+			<p></p>
+			<p> Web desing based on this <a href="http://ccarpenterg.github.io/blog/us-census-visualization-with-d3js/">Blog</a>.</p>
+		</section>
+	</footer>
+	
+</html>
